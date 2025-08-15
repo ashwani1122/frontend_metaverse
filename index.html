@@ -67,39 +67,59 @@
         const ctx = canvas.getContext("2d");
         const tile = 40;
         function drawGrid() {
-        ctx.fillStyle = "#87ceeb"; // sky
+        // === SKY with gradient ===
+        let sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        sky.addColorStop(0, "#87ceeb"); // top
+        sky.addColorStop(1, "#ccefff"); // bottom
+        ctx.fillStyle = sky;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Ground
-        ctx.fillStyle = "#228B22"; // grass
+        // === GROUND with perspective fade ===
+        let ground = ctx.createLinearGradient(0, 350, 0, canvas.height);
+        ground.addColorStop(0, "#2e8b57");
+        ground.addColorStop(1, "#14532d");
+        ctx.fillStyle = ground;
         ctx.fillRect(0, 350, canvas.width, 150);
 
-        // Wall
-        ctx.fillStyle = "#d2b48c"; // tan wall
-        ctx.fillRect(100, 200, 300, 150);
+        // === TABLE with shading ===
+        ctx.fillStyle = "#8b4513";
+        ctx.fillRect(180, 280, 140, 10); // top surface
+        ctx.fillStyle = "#5c3317";
+        ctx.fillRect(180, 290, 10, 60); // leg 1 (darker side)
+        ctx.fillRect(310, 290, 10, 60); // leg 2 (darker side)
+        ctx.strokeStyle = "#3e2614";
+        ctx.strokeRect(180, 280, 140, 10); // edge outline
 
-        // Table
-        ctx.fillStyle = "#8b4513"; // brown
-        ctx.fillRect(180, 280, 140, 20); // tabletop
-        ctx.fillRect(180, 300, 10, 50); // leg 1
-        ctx.fillRect(310, 300, 10, 50); // leg 2
-
-        // Chair
+        // === CHAIR with perspective ===
         ctx.fillStyle = "#654321";
         ctx.fillRect(120, 300, 40, 10); // seat
+        ctx.fillStyle = "#3b2416"; // darker legs
         ctx.fillRect(120, 310, 10, 40); // leg 1
         ctx.fillRect(150, 310, 10, 40); // leg 2
-        ctx.fillRect(120, 270, 40, 10); // backrest
+        ctx.fillStyle = "#654321"; // backrest
+        ctx.fillRect(120, 270, 40, 10);
 
-        // Tree
+        // === TREE with volume ===
+        // trunk with side shading
         ctx.fillStyle = "#8b4513";
-        ctx.fillRect(500, 250, 20, 100); // trunk
-        ctx.fillStyle = "green";
+        ctx.fillRect(500, 250, 20, 100);
+        ctx.fillStyle = "#5a3310";
+        ctx.fillRect(510, 250, 10, 100); // shaded side
+
+        // leaves as gradient sphere
+        let leafGrad = ctx.createRadialGradient(510, 220, 20, 510, 220, 50);
+        leafGrad.addColorStop(0, "lightgreen");
+        leafGrad.addColorStop(1, "darkgreen");
+        ctx.fillStyle = leafGrad;
         ctx.beginPath();
-        ctx.arc(510, 220, 50, 0, Math.PI * 2); // leaves
+        ctx.arc(510, 220, 50, 0, Math.PI * 2);
         ctx.fill();
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "#eee";
+
+        // small shadow under tree
+        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.beginPath();
+        ctx.ellipse(510, 350, 40, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
         for (const [, pos] of others.entries()) {
         if (pos.x == null) continue;
         drawDot(pos.x, pos.y, false);
@@ -109,11 +129,61 @@
         function drawDot(gridX, gridY, me = false) {
         const cx = gridX * tile + tile / 2;
         const cy = gridY * tile + tile / 2;
-        ctx.beginPath();
-        ctx.arc(cx, cy, tile * 0.35, 0, Math.PI * 2);
+        const scale = tile * 0.35;
+
+        // Draw body color
+        ctx.strokeStyle = me ? "#1e90ff" : "#ff6347";
         ctx.fillStyle = me ? "#1e90ff" : "#ff6347";
+        ctx.lineWidth = 2;
+
+        // Head
+        ctx.beginPath();
+        ctx.arc(cx, cy - scale * 0.9, scale * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffdbac"; // skin color
         ctx.fill();
-        }
+        ctx.stroke();
+
+        // Eyes
+        ctx.fillStyle = "black";
+        ctx.beginPath();
+        ctx.arc(cx - scale * 0.2, cy - scale * 0.95, scale * 0.08, 0, Math.PI * 2);
+        ctx.arc(cx + scale * 0.2, cy - scale * 0.95, scale * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Nose
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - scale * 0.85);
+        ctx.lineTo(cx, cy - scale * 0.75);
+        ctx.stroke();
+
+        // Mouth (simple smile)
+        ctx.beginPath();
+        ctx.arc(cx, cy - scale * 0.75, scale * 0.2, 0, Math.PI);
+        ctx.stroke();
+
+        // Body
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - scale * 0.4);
+        ctx.lineTo(cx, cy + scale * 0.6);
+        ctx.stroke();
+
+        // Arms
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - scale * 0.2);
+        ctx.lineTo(cx - scale * 0.5, cy + scale * 0.2);
+        ctx.moveTo(cx, cy - scale * 0.2);
+        ctx.lineTo(cx + scale * 0.5, cy + scale * 0.2);
+        ctx.stroke();
+
+        // Legs
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + scale * 0.6);
+        ctx.lineTo(cx - scale * 0.3, cy + scale * 1.2);
+        ctx.moveTo(cx, cy + scale * 0.6);
+        ctx.lineTo(cx + scale * 0.3, cy + scale * 1.2);
+        ctx.stroke();
+    }
+
         drawGrid();
         $("connectBtn").addEventListener("click", () => {
         const url = $("wsUrl").value.trim();
