@@ -14,8 +14,6 @@
         input { width: 100%; padding: 8px; box-sizing: border-box; }
         button { padding: 8px 12px; margin-top: 12px; cursor: pointer; }
         .log { height: 240px; overflow: auto; background: #fafafa; border: 1px solid #eee; padding: 8px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
-        canvas { width: 800px; height: 600px; display: block; background: rgb(167, 75, 75)000f6; }
-        .hint { font-size: 12px; color: #666; }
         ul { padding-left: 18px; }
         .badge { display:inline-block; padding:2px 6px; border-radius: 8px; background-color:#000000; font-size:11px; }
         </style>
@@ -38,7 +36,7 @@
         <div class="log" id="log"></div>
         </aside>
         <main  style="display: flex; justify-content: center; align-items: center;">
-        <canvas style=" background-color: rgb(107, 86, 86);" id="board" width="600" height="600"></canvas>
+        <canvas id="board" width="1224" height="700"></canvas>
         </main>
         </div>
         <script>
@@ -65,19 +63,43 @@
         }
         $("userCount").textContent = String(others.size);
         };
-        const canvas = $("board");
+        const canvas = document.getElementById("board");
         const ctx = canvas.getContext("2d");
         const tile = 40;
         function drawGrid() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#87ceeb"; // sky
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Ground
+        ctx.fillStyle = "#228B22"; // grass
+        ctx.fillRect(0, 350, canvas.width, 150);
+
+        // Wall
+        ctx.fillStyle = "#d2b48c"; // tan wall
+        ctx.fillRect(100, 200, 300, 150);
+
+        // Table
+        ctx.fillStyle = "#8b4513"; // brown
+        ctx.fillRect(180, 280, 140, 20); // tabletop
+        ctx.fillRect(180, 300, 10, 50); // leg 1
+        ctx.fillRect(310, 300, 10, 50); // leg 2
+
+        // Chair
+        ctx.fillStyle = "#654321";
+        ctx.fillRect(120, 300, 40, 10); // seat
+        ctx.fillRect(120, 310, 10, 40); // leg 1
+        ctx.fillRect(150, 310, 10, 40); // leg 2
+        ctx.fillRect(120, 270, 40, 10); // backrest
+
+        // Tree
+        ctx.fillStyle = "#8b4513";
+        ctx.fillRect(500, 250, 20, 100); // trunk
+        ctx.fillStyle = "green";
+        ctx.beginPath();
+        ctx.arc(510, 220, 50, 0, Math.PI * 2); // leaves
+        ctx.fill();
         ctx.lineWidth = 1;
         ctx.strokeStyle = "#eee";
-        for (let x = 0; x <= canvas.width; x += tile) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-        }
-        for (let y = 0; y <= canvas.height; y += tile) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-        }
         for (const [, pos] of others.entries()) {
         if (pos.x == null) continue;
         drawDot(pos.x, pos.y, false);
