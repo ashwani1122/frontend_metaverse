@@ -4,370 +4,173 @@
         <meta charset="utf-8" />
         <title>WS Space Client</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style>
-        html, body { height: 100%;background-color: black; color: antiquewhite; margin: 0; font-family: system-ui, sans-serif; }
-        .wrap { display: grid; grid-template-columns: 320px 1fr;
-            gap: 16px; 
-            height: 100%; }
-        aside { padding: 16px; border-right: 1px solid #eee; }
-        label { display: block; font-size: 12px; color: #555; margin-top: 8px; }
-        input { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { padding: 8px 12px; margin-top: 12px; cursor: pointer; }
-        .log { height: 240px; overflow: auto; background: #fafafa; border: 1px solid #eee; padding: 8px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
-        ul { padding-left: 18px; }
-        .badge { display:inline-block; padding:2px 6px; border-radius: 8px; background-color:#000000; font-size:11px; }
-        </style>
         </head>
         <body>
-        <div class="wrap">
-        <aside>
-        <h2>Connect</h2>
-        <label>WS URL</label>
-        <input id="wsUrl" value="ws://localhost:3001" />
-        <label>spaceId</label>
-        <input id="spaceId" placeholder="space id" />
-        <label>JWT token</label>
-        <input id="token" placeholder="jwt" />
-        <button id="connectBtn">Connect & Join</button>
-        <p class="hint">After connecting, use the arrow keys to move one tile at a time.</p>
-        <h3>Users <span class="badge" id="userCount">0</span></h3>
-        <ul id="userList"></ul>
-        <h3>Log</h3>
-        <div class="log" id="log"></div>
-        </aside>
-        <main  style="display: flex; justify-content: center; align-items: center;">
-        <canvas id="board" width="1224" height="700"></canvas>
-        </main>
+<div style="background:linear-gradient( rgb(8, 8, 72),rgb(56, 56, 148)); height: 100vh; width: 100vw;">
+    <div class="container">
+        <div style="display: flex; flex-direction: row; height: 60px;  color: antiquewhite; align-items: center; justify-content: space-between;">
+            <div style="padding-top: 20px; margin: 20px;" class="left">
+                <img style="width: 150px; border-radius: 50px;" src="https://tse3.mm.bing.net/th/id/OIP.1vSBQX4BeHApVdw7capEvwHaDt?pid=Api&P=0&h=220&w=220" alt="metaverse logo">
+            </div>
+            <div class="right">
+                <button  onclick="spaceJoin()" style="padding-inline: 50px;padding-block: 15px; margin: 12px; cursor: pointer; font-size: 20px;">
+                    <a href="space.html">
+                    create space
+                    </a>
+                </button>
+                <button style="padding-inline: 50px;padding-block: 15px; margin-top: 12px; cursor: pointer; font-size: 20px;">
+                    <a href="signup.html">
+                    Sign Up
+                    </a>
+                </button>
+            </div>
         </div>
-        <script>
-        let socket = null;
-        let joined = false;
-        let myPos = { x: null, y: null };
-        const others = new Map();
-        const $ = (id) => document.getElementById(id);
-        const log = (msg, obj) => {
-        const el = $("log");
-        const line = document.createElement("div");
-        line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        el.appendChild(line);
-        el.scrollTop = el.scrollHeight;
-        if (obj) console.debug(msg, obj);
-        };
-        const renderUserList = () => {
-        const ul = $("userList");
-        ul.innerHTML = "";
-        for (const [id, pos] of others.entries()) {
-        const li = document.createElement("li");
-        li.textContent = `${id} @ (${pos.x}, ${pos.y})`;
-        ul.appendChild(li);
-        }
-        $("userCount").textContent = String(others.size);
-        };
-        const canvas = document.getElementById("board");
-        const ctx = canvas.getContext("2d");
-        const tile = 40;
-        function drawGrid() {
-        // === SKY with gradient ===
-        let sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        sky.addColorStop(0, "#87ceeb"); // top
-        sky.addColorStop(1, "#ccefff"); // bottom
-        ctx.fillStyle = sky;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // === GROUND with perspective fade ===
-        let ground = ctx.createLinearGradient(0, 350, 0, canvas.height);
-        ground.addColorStop(0, "#2e8b57");
-        ground.addColorStop(1, "#14532d");
-        ctx.fillStyle = ground;
-        ctx.fillRect(0, 390, canvas.width, 550);
-
-        // === TABLE with shading ===
-    function drawTable(x, y, withComputer = false) {
-        ctx.fillStyle = "#8b4513"; // table top
-        ctx.fillRect(x, y, 140, 10);
-
-        ctx.fillStyle = "#5c3317"; // legs
-        ctx.fillRect(x, y + 10, 10, 60);
-        ctx.fillRect(x + 130, y + 10, 10, 60);
-
-        ctx.strokeStyle = "#3e2614"; // outline
-        ctx.strokeRect(x, y, 140, 10);
-
-        if (withComputer) {
-            drawComputer(x + 45, y); // put computer in center
-        }
-}
-    function drawRoom(x, y) {
-        ctx.fillStyle = "#8b4513"; // table top
-        ctx.fillRect(x, y, 350, 30);
-        ctx.fillStyle = "#5c3317"; // legs
-        ctx.fillRect(x, y , 30, 200);
-        ctx.fillRect(x, y+200, 200, 20);
-        ctx.fillRect(x + 350, y, 30, 220);
-        ctx.strokeStyle = "#3e2614"; // outline
-    }
-    function drawSofa(x, y) {
-    // Sofa base
-        ctx.fillStyle = "#8b0000"; // dark red
-        ctx.fillRect(x, y, 120, 40);
-
-        // Backrest
-        ctx.fillStyle = "#a52a2a"; // lighter red/brown
-        ctx.fillRect(x, y - 30, 120, 30);
-
-        // Armrests
-        ctx.fillStyle = "#8b0000";
-        ctx.fillRect(x - 20, y - 10, 20, 50);
-        ctx.fillRect(x + 120, y - 10, 20, 50);
-
-        // Cushion lines
-        ctx.strokeStyle = "#5c1a1a";
-        ctx.beginPath();
-        ctx.moveTo(x + 60, y - 30);
-        ctx.lineTo(x + 60, y + 40);
-        ctx.stroke();
-}
-        drawRoom(10, 10);
-        drawRoom(10, 300);
-        drawRoom(850, 300);
-        drawRoom(850, 10);
-function drawComputer(x, y) {
-    // Monitor
-    ctx.fillStyle = "#333333";
-    ctx.fillRect(x, y - 30, 50, 30); // screen body
-    ctx.fillStyle = "#87cefa"; // screen color
-    ctx.fillRect(x + 5, y - 25, 40, 20); // screen display
-
-    // Stand
-    ctx.fillStyle = "#333333";
-    ctx.fillRect(x + 20, y, 10, 10);
-
-    // Keyboard
-    ctx.fillStyle = "#555555";
-    ctx.fillRect(x - 10, y + 15, 70, 10);
-}
-
-    function drawChair(x, y) {
-        ctx.fillStyle = "#654321"; // seat
-        ctx.fillRect(x, y, 40, 10);
-
-        ctx.fillStyle = "#3b2416"; // legs
-        ctx.fillRect(x, y + 10, 10, 40);
-        ctx.fillRect(x + 30, y + 10, 10, 40);
-
-        ctx.fillStyle = "#654321"; // backrest
-        ctx.fillRect(x, y - 40, 40, 40);
-    }
-        drawTable(45, 70, true);
-        drawChair(90, 140);
-        // drawChair(350, 300);
-        drawSofa(210, 80);
-
-        drawTable(400, 35, true);
-        drawChair(420, 110);
-        drawChair(480, 110);
-        drawTable(550, 35, true);
-        drawChair(570, 110);
-        drawChair(620, 110);
-        drawTable(700, 35, true);
-        drawChair(720, 110);
-        drawChair(770, 110);
-        // 3rd room
-        drawTable(1055, 70, true);
-        drawChair(1075, 140);
-        drawChair(1135, 140);
-        // 4th room 
-        drawTable(1055, 350, true);
-        drawChair(1075, 420);
-        drawChair(1135, 420)
-
-        drawSofa(910, 370);
-        
-        drawTable(50, 350, true);
-        drawChair(70, 430);
-        drawChair(120, 430);
-        drawTable(200, 350, true);
-        drawChair(220, 430);
-        drawChair(270, 430);
-        drawSofa(910, 80);
-        for (const [, pos] of others.entries()) {
-        if (pos.x == null) continue;
-        drawDot(pos.x, pos.y, false);
-        }
-        if (myPos.x != null) drawDot(myPos.x, myPos.y, true);
-        }
-        function drawDot(gridX, gridY, me = false) {
-        const cx = gridX * tile + tile / 2;
-        const cy = gridY * tile + tile / 2;
-        const scale = tile * 0.5; // bigger avatar
-
-        // Thicker outline for limbs
-        ctx.lineWidth = 4;
-        
-        // === Head with gradient ===
-        const headGradient = ctx.createRadialGradient(cx, cy - scale * 0.9, scale * 0.1, cx, cy - scale * 0.9, scale * 0.5);
-        headGradient.addColorStop(0, "#ffe0bd"); // light center
-        headGradient.addColorStop(1, "#ffcc99"); // darker edges
-        ctx.fillStyle = headGradient;
-        ctx.beginPath();
-        ctx.arc(cx, cy - scale * 0.9, scale * 0.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#333";
-        ctx.stroke();
-
-        // Eyes
-        ctx.fillStyle = "black";
-        ctx.beginPath();
-        ctx.arc(cx - scale * 0.2, cy - scale * 0.95, scale * 0.08, 0, Math.PI * 2);
-        ctx.arc(cx + scale * 0.2, cy - scale * 0.95, scale * 0.08, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Mouth (simple smile)
-        ctx.beginPath();
-        ctx.arc(cx, cy - scale * 0.7, scale * 0.2, 0, Math.PI);
-        ctx.stroke();
-
-        // === Body with gradient ===
-        const bodyGradient = ctx.createLinearGradient(cx, cy - scale * 0.4, cx, cy + scale * 0.6);
-        bodyGradient.addColorStop(0, me ? "#4a90e2" : "#ff6347");
-        bodyGradient.addColorStop(1, me ? "#003366" : "#8b0000");
-        ctx.strokeStyle = bodyGradient;
-
-        // Body line
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - scale * 0.4);
-        ctx.lineTo(cx, cy + scale * 0.6);
-        ctx.stroke();
-
-        // Arms
-        ctx.beginPath();
-        ctx.moveTo(cx, cy - scale * 0.2);
-        ctx.lineTo(cx - scale * 0.6, cy + scale * 0.2);
-        ctx.moveTo(cx, cy - scale * 0.2);
-        ctx.lineTo(cx + scale * 0.6, cy + scale * 0.2);
-        ctx.stroke();
-
-        // Legs
-        ctx.beginPath();
-        ctx.moveTo(cx, cy + scale * 0.6);
-        ctx.lineTo(cx - scale * 0.4, cy + scale * 1.3);
-        ctx.moveTo(cx, cy + scale * 0.6);
-        ctx.lineTo(cx + scale * 0.4, cy + scale * 1.3);
-        ctx.stroke();
-    }
-
-        drawGrid();
-        $("connectBtn").addEventListener("click", () => {
-        const url = $("wsUrl").value.trim();
-        const spaceId = $("spaceId").value.trim();
-        const token = $("token").value.trim();
-        if (!url || !spaceId || !token) {
-        alert("Please fill WS URL, spaceId, and token");
-        return;
-        }
-        if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-        try { socket.close(); } catch {}
-        }
-        socket = new WebSocket(url);
-        socket.onopen = () => {
-        log("WS connected. Sending join...");
-        socket.send(JSON.stringify({ type: "join", payload: { spaceId, token } }));
-        };
-        socket.onmessage = (ev) => {
-        let msg = null;
-        try { msg = JSON.parse(ev.data); } catch (e) { log("Non-JSON message", ev.data); return; }
-        log(`<= ${msg.type}`);
-        switch (msg.type) {
-        case "space-joined": {
-        myPos.x = msg.payload && msg.payload.spawn ? msg.payload.spawn.x : 0;
-        myPos.y = msg.payload && msg.payload.spawn ? msg.payload.spawn.y : 0;
-        joined = true;
-        others.clear();
-        const list = (msg.payload && msg.payload.users) ? msg.payload.users : [];
-        for (const u of list) {
-        const uid = u.userId || u.id;
-        if (!uid) continue;
-        others.set(uid, { x: u.x ?? null, y: u.y ?? null });
-        }
-        renderUserList();
-        drawGrid();
-        break;
-        }
-        case "user-joined": {
-        const p = msg.payload || {};
-        const uid = p.userId || p.id;
-        if (uid) {
-        others.set(uid, { x: p.x, y: p.y });
-        renderUserList();
-        drawGrid();
-        }
-        break;
-        }
-        case "movement": {
-        const p = msg.payload || {};
-        const uid = p.userId || p.id;
-        if (uid && others.has(uid)) {
-        others.set(uid, { x: p.x, y: p.y });
-        drawGrid();
-        }
-        break;
-        }
-        case "movement-rejected": {
-        myPos.x = msg.payload.x;
-        myPos.y = msg.payload.y;
-        drawGrid();
-        break;
-        }
-        case "user-left": {
-        const p = msg.payload || {};
-        const uid = p.userId || p.id;
-        if (uid) {
-        others.delete(uid);
-        renderUserList();
-        drawGrid();
-        }
-        break;
-        }
-        }
-        };
-        socket.onclose = () => { log("WS closed"); joined = false; };
-        socket.onerror = (e) => log("WS error", e);
-        });
-        document.addEventListener("keydown", (e) => {
-        const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
-        if (["input","textarea","select"].includes(tag)) return;
-        let handled = false;
-        if (e.key === "ArrowUp") { handled = true; 
-            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null) { const nx = myPos.x;
-                const ny = myPos.y - 1;
-                socket.send(JSON.stringify({ type: "move", payload: { x: nx, y: ny } })); 
-                myPos.x = nx; myPos.y = ny; drawGrid(); } }
-        else if (e.key === "ArrowDown") 
-        { handled = true; if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null) 
-            { const nx = myPos.x; 
-                const ny = myPos.y + 1; 
-                socket.send(JSON.stringify({ type: "move", payload: { x: nx, y: ny } })); 
-                myPos.x = nx; myPos.y = ny; 
-                drawGrid(); 
-            } }
-        else if (e.key === "ArrowLeft") 
-        { handled = true; 
-            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null) 
-            { const nx = myPos.x - 1;
-                const ny = myPos.y; socket.send(JSON.stringify({ type: "move", payload: { x: nx, y: ny } })); 
-                myPos.x = nx; myPos.y = ny; drawGrid(); } }
-        else if (e.key === "ArrowRight") 
-        { handled = true; 
-            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null) 
-            { const nx = myPos.x + 1; 
-                const ny = myPos.y; 
-                socket.send(JSON.stringify({ type: "move", payload: { x: nx, y: ny } })); 
-                myPos.x = nx; 
-                myPos.y = ny; 
-                drawGrid(); } }
-        if (handled) 
-        e.preventDefault();
-        });
-        </script>
+    </div>
+    <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; margin-top: 100px;">
+    <div style="width: 700px; height: 100%; display: flex; flex-direction: column; align-items: start; margin-left: 100px;padding: 20px;">
+        <h1 style="font-size: 40px; font-family: sans-serif; font-weight: bold; color: rgb(199, 199, 205);">
+            Your Virtual HQ
+        </h1>
+        <p style="font-size: 20px; font-family: Arial, Helvetica, sans-serif; color: rgb(199, 199, 205);">
+            Create a virtual home for your friends and family, and explore the metaverse together.
+        </p>
+        <button style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(12, 27, 236); color: antiquewhite; font-weight: 700;">
+            Get Started
+        </button>
+    </div>
+    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <video id="home-hero" muted="" loop="" playsinline="" style="width:600px;border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.55);" src="https://cdn.vidzflow.com/v/h3yy6rTnJQ_720p_1691443174.mp4" poster="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/645bf7b13ac3a54d23fb33ad_Screenshot%202023-05-10%20125910.jpg">
+        </video>
+        </div>
+        </div>
+        </div>
+        <div style="display: flex; flex-direction:column; justify-content: space-between; align-items: center; margin-top: 100px; gap:100px">
+            <h1 style="font-size: 45px;text-align: center; font-family: sans-serif;  color: rgb(24, 12, 107); width: 600px;">The in-person moments you’ve been missing</h1>
+            <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;gap:40px ">
+                <div style="display: flex; flex-direction: column; align-items: start; width: 450px;">
+                    <p style="color: rgb(84, 84, 217);">PROXIMITY AND VISIBILITY</p>
+                    <h1 style="font-size: 40px; font-family: sans-serif; font-weight: bold; color: rgb(24, 12, 107);">
+                        Bring your remote team closer together
+                    </h1>
+                    <p>Communicate, collaborate, and feel more connected in a persistent space that reflects your unique team culture.</p>
+                </div>
+                <div>
+                    <img style="width: 500px;" src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaed7bdd2933eec28371_home%20proximity-p-800.png" alt="">
+                </div>
+            </div>
+            <div style=" display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+                <div>
+                    <img style="width: 500px; " src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaed50a294a779d34a2e_home%20moments-p-800.png" alt="">
+                </div>
+                <div style="width: 500px;padding:50px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; ">
+                    <p style="color: rgb(84, 84, 217);">SERENDIPITOUS MOMENTS</p>
+                    <h1 style=" color: rgb(24, 12, 107);">Talk naturally throughout your day</h1>
+                    <p>Stop by someone's desk, say hi in the hallway, and bring back water cooler chats. No scheduling required.
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: row;  align-items: center;">
+                <div style="width: 450px; font-family:  sans-serif; justify-items: start; padding: 100px; margin-bottom: 100px;">
+                <p style="color: rgb(84, 84, 217);">PRODUCTIVE CONVERSATIONS</p>
+                <h1  style='color: rgb(24, 12, 107);'>
+                    Meet in the moment
+                </h1>
+                <p>
+                    Collaborate in the moment or schedule team meetings to keep everyone aligned and work moving forward.
+                </p>
+                </div>
+                <div>
+                    <img style="width: 500px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaedee179c6b6c275e75_home%20conversations-p-800.png" alt="">
+                </div>
+            </div>
+        </div>
+        <div style="width: 100%; display: flex;justify-content: center; flex-direction: column; align-items: center; text-align:center;background:linear-gradient( rgb(8, 8, 72),rgb(56, 56, 148)) ;">
+            <h1 style="font-size:60px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 800px; color:azure ">Everything remote teams need to get work done</h1>
+            <div>
+                <ul style="width: 500px; display: flex; flex-direction: column;  gap: 20px; background-color: rgb(61, 64, 108); padding: 30px; border-radius: 10px; color:white;font-weight: 400;">
+                    <li>
+                        <div style="display: flex; flex-direction: row; align-items: center; gap:10px;">
+                            <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093308f0c86285bb8728cf_Desktop.svg" alt="">
+                            <p>Share multiple screens at the same time</p>
+                        </div>
+                    </li>
+                    <li><div style="display: flex; flex-direction: row; align-items: center; gap:10px;">
+                        <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093349a5623b1f14c9a0b0_slack.png" alt="">
+                        <p>Slack integration</p>
+                    </div></li>
+                    <li style="display: flex; flex-direction: row; align-items: center; gap:10px;">
+                        <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64b6f4b7c767e83e6428f973_shield-check%201.svg" alt="">
+                        <p>
+                            SSO
+                        </p>
+                    </li>
+                    <li>
+                        <div style="display: flex; flex-direction: row; align-items: center; gap:10px;">
+                            <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/6409337698a4d3bcb6a9b156_Blurbg.svg" alt="">
+                            <p>
+                                Virtual backgrounds and background blur
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div style="display: flex; flex-direction: row; align-items: center; gap:10px;">
+                            <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093356bd5d36786c5d8c4f_Crown.svg" alt="">
+                            <p>
+                                Premium support(Premium Offices plans only)
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div> 
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%; height: 100%; margin-top: 100px; border-radius: 20px;">
+            <video style="width: 800px; border-radius: 20px;"  src="https://cdn.vidzflow.com/v/MB29PHd9nF_1080p_1691443966.mp4"></video>
+            <h1 style="font-size: 50px; font-family:  sans-serif; color: rgb(29, 29, 35); text-align: center;">Build a culture your remote team loves</h1>
+            <div>
+                <button style="padding-inline: 40px; padding-block: 15px; background-color: blue; font-weight: 600; color: aliceblue; border-radius: 10px; margin-bottom: 40px;">
+                    Get started
+                </button>
+            </div>
+        </div>
+        <hr>
+        <div style="display: flex; justify-content:space-evenly ;  width: 100%; color:rgb(57, 63, 67)" class="footer">
+            <div>
+                <h2>Metaverse</h2>
+                <p>c 2025 Metaverse presence Inc.</p>
+                <p>Data Processing Agreement</p>
+                <p>Privacy Policy</p>
+                <p>Terms of Service</p>
+                <div>
+                    <img style="width: 100px; height: 100px;"   src="https://static.vecteezy.com/system/resources/previews/009/676/354/original/social-media-icons-set-and-popular-social-applications-modern-logos-flat-illustration-free-vector.jpg" alt="">
+                </div>
+            </div>
+            <div>
+                <h3>Product</h3>
+                <p>Features</p>
+                <p>Pricing</p>
+                <p>FAQ</p>
+                <p>Support</p>
+            </div>
+            <div>
+                <h3>metaverse for</h3>
+                <p>Engineering teams</p>
+                <p>People teams</p>
+                <p>Managers</p>
+                <p>Startups</p>
+            </div>
+            <div>
+                <h3>Remote work</h3>
+                <p>Virtual office</p>
+                <p>Team meetings</p>
+                <p>Team meetings</p>
+                <p>Team socials</p>
+            </div>
+            <div>
+                <h3>Company</h3>
+                <p>About</p>
+                <p>Careers</p>
+                <p>Contact us</p>
+            </div>
+        </div>
         </body>
 </html>
