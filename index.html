@@ -5,6 +5,41 @@
   <title>WS Space Client</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+        .button {
+    position: relative;
+    background-color: #ae9db8;
+    border: none;
+    font-size: 28px;
+    color: #FFFFFF;
+    padding: 20px;
+    width: 200px;
+    text-align: center;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-decoration: none;
+    overflow: hidden;
+    cursor: pointer;
+    }
+
+    .button:after {
+    content: "";
+    background: #d849c7;
+    display: block;
+    position: absolute;
+    padding-top: 300%;
+    padding-left: 350%;
+    margin-left: -20px!important;
+    margin-top: -120%;
+    opacity: 0;
+    transition: all 0.8s
+    }
+
+    .button:active:after {
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    transition: 0s
+    }
     /* Animation styles */
     .lazy-animate {
       opacity: 0;
@@ -26,12 +61,12 @@
                 <h3 style="color:white; font-size:30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;padding: 20px;">Metaverse</h3>
             </div>
             <div style="padding-inline: 35px;padding-block: 10px; margin-top: 12px; cursor: pointer; font-size: 20px;border-radius: 10px;" class="right">
-                <button  onclick="spaceJoin()" style="padding-inline: 35px;padding-block: 10px; margin-top: 12px; cursor: pointer; font-size: 20px; border-radius: 10px;">
+                <button class="button"  onclick="spaceJoin()" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(174, 175, 184); color: oklch(100% 0.00011 271.152); font-weight: 700;">
                     <a style="text-decoration: none;" href="space.html">
                     create space
                     </a>
                 </button>
-                <button style="padding-inline: 35px;padding-block: 10px; margin-top: 12px; cursor: pointer; font-size: 20px;border-radius: 10px;">
+                <button class="button" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(175, 176, 188); color: antiquewhite; font-weight: 700;">
                     <a style="text-decoration:  none;" href="signup.html">
                     Sign Up
                     </a>
@@ -47,7 +82,7 @@
         <p style="font-size: 20px; font-family:  sans-serif; color: rgb(199, 199, 205);">
             Create a virtual home for your friends and family, and explore the metaverse together.
         </p>
-        <button style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(12, 27, 236); color: antiquewhite; font-weight: 700;">
+        <button class="button" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(12, 27, 236); color: antiquewhite; font-weight: 700;">
             Get Started
         </button>
     </div>
@@ -138,7 +173,7 @@
             </video>
             <h1 style="font-size: 50px; font-family:  sans-serif; color: rgb(29, 29, 35); text-align: center;">Build a culture your remote team loves</h1>
             <div>
-                <button style="padding-inline: 40px; padding-block: 15px; background-color: blue; font-weight: 600; color: aliceblue; border-radius: 10px; margin-bottom: 40px; outline: none;">
+                <button class="button" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(12, 27, 236); color: antiquewhite; font-weight: 700;">
                     Get started
                 </button>
             </div>
