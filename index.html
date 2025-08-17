@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html>
-        <head>
-        <meta charset="utf-8" />
-        <title>WS Space Client</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        </head>
-        <body>
+<head>
+  <meta charset="utf-8" />
+  <title>WS Space Client</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* Animation styles */
+    .lazy-animate {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.8s ease-out;
+      will-change: opacity, transform;
+    }
+    .lazy-animate.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
 <div style="background:linear-gradient( rgb(8, 8, 72),rgb(56, 56, 148)); width: 100vw">
     <div class="container">
         <div style="display: flex; flex-direction: row; height: 60px;  color: antiquewhite; align-items: center; justify-content: space-between;">
@@ -39,8 +52,8 @@
         </button>
     </div>
     <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <video controls style="width:600px;border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.55);"  poster="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/645bf7b13ac3a54d23fb33ad_Screenshot%202023-05-10%20125910.jpg">
-            <source src="https://cdn.vidzflow.com/v/h3yy6rTnJQ_720p_1691443174.mp4" type="video/mp4">
+        <video controls class="lazy-animate" style="width:600px;border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.55);" poster="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/645bf7b13ac3a54d23fb33ad_Screenshot%202023-05-10%20125910.jpg">
+            <source data-src="https://cdn.vidzflow.com/v/h3yy6rTnJQ_720p_1691443174.mp4" type="video/mp4">
         </video>
         </div>
         </div>
@@ -56,12 +69,12 @@
                     <p style="font-family:sans-serif ;">Communicate, collaborate, and feel more connected in a persistent space that reflects your unique team culture.</p>
                 </div>
                 <div>
-                    <img style="width: 500px;" src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaed7bdd2933eec28371_home%20proximity-p-800.png" alt="">
+                    <img class="lazy-animate" style="width: 500px;" data-src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaed7bdd2933eec28371_home%20proximity-p-800.png" alt="">
                 </div>
             </div>
             <div style=" display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
                 <div>
-                    <img style="width: 500px; " src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaed50a294a779d34a2e_home%20moments-p-800.png" alt="">
+                    <img class="lazy-animate" style="width: 500px; " data-src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaed50a294a779d34a2e_home%20moments-p-800.png" alt="">
                 </div>
                 <div style="width: 500px;padding:50px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; ">
                     <p style="color: rgb(84, 84, 217);">SERENDIPITOUS MOMENTS</p>
@@ -81,57 +94,51 @@
                 </p>
                 </div>
                 <div>
-                    <img style="width: 500px;"  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaedee179c6b6c275e75_home%20conversations-p-800.png" alt="">
+                    <img class="lazy-animate" style="width: 500px;"  data-src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/643efaedee179c6b6c275e75_home%20conversations-p-800.png" alt="">
                 </div>
             </div>
         </div>
-        <div style="width: 100%; display: flex;justify-content: center; flex-direction: column; align-items: center; text-align:center;background:linear-gradient( rgb(8, 8, 72),rgb(56, 56, 148)) ;">
+        <div style="width: 100%;height: 100vh; display: flex;justify-content: center; flex-direction: column; align-items: center; text-align:center;background:linear-gradient( rgb(8, 8, 72),rgb(56, 56, 148)) ;">
             <h1 style="font-size:60px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 800px; color:azure ">Everything remote teams need to get work done</h1>
             <div style="text-decoration: none;">
                 <ul style="width: 500px; display: flex; flex-direction: column;  gap: 20px; background-color: rgb(61, 64, 108); padding: 30px; border-radius: 10px; color:white;font-weight: 400; text-decoration: none;">
-                    <li    style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
+                    <li style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
                         <div style="display: flex; flex-direction: row; align-items: center; gap:10px; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;">
-                            <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093308f0c86285bb8728cf_Desktop.svg" alt="">
-                            <p style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Share multiple screens at the same time</p>
+                            <img class="lazy-animate" style="width: 30px;" data-src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093308f0c86285bb8728cf_Desktop.svg" alt="">
+                            <p>Share multiple screens at the same time</p>
                         </div>
                     </li>
-                    <li   style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
+                    <li style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
                         <div style="display: flex; flex-direction: row; align-items: center; gap:10px;">
-                        <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093349a5623b1f14c9a0b0_slack.png" alt="">
-                        <p style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Slack integration</p>
+                        <img class="lazy-animate" style="width: 30px;" data-src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093349a5623b1f14c9a0b0_slack.png" alt="">
+                        <p>Slack integration</p>
                     </div></li>
-                    <li   style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
-                        <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64b6f4b7c767e83e6428f973_shield-check%201.svg" alt="">
-                        <p style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                            SSO
-                        </p>
+                    <li style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
+                        <img class="lazy-animate" style="width: 30px;" data-src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64b6f4b7c767e83e6428f973_shield-check%201.svg" alt="">
+                        <p>SSO</p>
                     </li>
-                    <li    style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
+                    <li style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
                         <div style="display: flex; flex-direction: row; align-items: center; gap:10px;">
-                            <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/6409337698a4d3bcb6a9b156_Blurbg.svg" alt="">
-                            <p style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                                Virtual backgrounds and background blur
-                            </p>
+                            <img class="lazy-animate" style="width: 30px;" data-src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/6409337698a4d3bcb6a9b156_Blurbg.svg" alt="">
+                            <p>Virtual backgrounds and background blur</p>
                         </div>
                     </li>
-                    <li    style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
+                    <li style="display: flex; flex-direction: row; align-items: center; gap:10px; ">
                         <div style="display: flex; flex-direction: row; align-items: center; gap:10px;">
-                            <img style="width: 30px; "  src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093356bd5d36786c5d8c4f_Crown.svg" alt="">
-                            <p style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                                Premium support(Premium Offices plans only)
-                            </p>
+                            <img class="lazy-animate" style="width: 30px;" data-src="https://cdn.prod.website-files.com/63c885e8fb810536398b658a/64093356bd5d36786c5d8c4f_Crown.svg" alt="">
+                            <p>Premium support(Premium Offices plans only)</p>
                         </div>
                     </li>
                 </ul>
             </div>
         </div> 
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; width: 100%; height: 100%; margin-top: 100px; border-radius: 20px;">
-            <video controls style="width: 800px; border-radius: 20px;"  >
-                <source src="https://cdn.vidzflow.com/v/MB29PHd9nF_1080p_1691443966.mp4" type="video/mp4">
+            <video controls class="lazy-animate" style="width: 800px; border-radius: 20px;"  >
+                <source data-src="https://cdn.vidzflow.com/v/MB29PHd9nF_1080p_1691443966.mp4" type="video/mp4">
             </video>
             <h1 style="font-size: 50px; font-family:  sans-serif; color: rgb(29, 29, 35); text-align: center;">Build a culture your remote team loves</h1>
             <div>
-                <button style="padding-inline: 40px; padding-block: 15px; background-color: blue; font-weight: 600; color: aliceblue; border-radius: 10px; margin-bottom: 40px;">
+                <button style="padding-inline: 40px; padding-block: 15px; background-color: blue; font-weight: 600; color: aliceblue; border-radius: 10px; margin-bottom: 40px; outline: none;">
                     Get started
                 </button>
             </div>
@@ -145,36 +152,67 @@
                 <p>Privacy Policy</p>
                 <p>Terms of Service</p>
                 <div>
-                    <img style="width: 150px;"   src="https://static.vecteezy.com/system/resources/previews/009/676/354/original/social-media-icons-set-and-popular-social-applications-modern-logos-flat-illustration-free-vector.jpg" alt="">
+                    <img class="lazy-animate" style="width: 150px;" data-src="https://static.vecteezy.com/system/resources/previews/009/676/354/original/social-media-icons-set-and-popular-social-applications-modern-logos-flat-illustration-free-vector.jpg" alt="">
                 </div>
             </div>
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                <h3 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Product</h3>
+                <h3>Product</h3>
                 <p>Features</p>
                 <p>Pricing</p>
                 <p>FAQ</p>
                 <p>Support</p>
             </div>
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                <h3 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">metaverse for</h3>
+                <h3>metaverse for</h3>
                 <p>Engineering teams</p>
                 <p>People teams</p>
                 <p>Managers</p>
                 <p>Startups</p>
             </div>
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                <h3 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Remote work</h3>
+                <h3>Remote work</h3>
                 <p>Virtual office</p>
                 <p>Team meetings</p>
                 <p>Team meetings</p>
                 <p>Team socials</p>
             </div>
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                <h3 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Company</h3>
+                <h3>Company</h3>
                 <p>About</p>
                 <p>Careers</p>
                 <p>Contact us</p>
             </div>
         </div>
-        </body>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const lazyElements = document.querySelectorAll("img, video");
+
+  lazyElements.forEach(el => el.classList.add("lazy-animate"));
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+
+        if (entry.target.tagName === "VIDEO") {
+          const source = entry.target.querySelector("source");
+          if (source && source.dataset.src) {
+            source.src = source.dataset.src;
+            entry.target.load();
+          }
+        } else if (entry.target.tagName === "IMG" && entry.target.dataset.src) {
+          entry.target.src = entry.target.dataset.src;
+        }
+
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  lazyElements.forEach(el => observer.observe(el));
+});
+</script>
+</body>
 </html>
