@@ -1,4 +1,4 @@
-async function signup() {
+async function signIn() {
     alert("Control reached here");
     const userName = document.getElementById("username").value;
     alert(userName);
@@ -7,7 +7,7 @@ async function signup() {
     alert(password);
     const type = document.getElementById("type").value
     alert(type);
-    const res = await fetch("http://localhost:3003/api/v1/signup", {
+    const res = await fetch("http://localhost:3003/api/v1/signin", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -25,6 +25,8 @@ async function signup() {
 
     const data = await res.json();
     alert(JSON.stringify(data));
-    
-    window.location.href="signIn.html"
+    localStorage.setItem("token",data.token)
+    alert(localStorage.getItem("token"))
+    window.location.href = "index.html"
+    win
 }
