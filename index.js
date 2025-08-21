@@ -91,7 +91,7 @@ let socket = null;
         drawRoom(10, 300);
         drawRoom(850, 300);
         drawRoom(850, 10);
-function drawComputer(x, y) {
+        function drawComputer(x, y) {
     // Monitor
     ctx.fillStyle = "#333333";
     ctx.fillRect(x, y - 30, 50, 30); // screen body
@@ -154,7 +154,9 @@ function drawComputer(x, y) {
         if (pos.x == null) continue;
         drawDot(pos.x, pos.y, false);
         }
-        if (myPos.x != null) drawDot(myPos.x, myPos.y, true);
+        if (myPos.x != null) 
+            drawDot(myPos.x, myPos.y, true);
+            
         }
         function drawDot(gridX, gridY, me = false) {
         const cx = gridX * tile + tile / 2;
@@ -174,8 +176,6 @@ function drawComputer(x, y) {
         ctx.fill();
         ctx.strokeStyle = "#333";
         ctx.stroke();
-
-        // Eyes
         ctx.fillStyle = "black";
         ctx.beginPath();
         ctx.arc(cx - scale * 0.2, cy - scale * 0.95, scale * 0.08, 0, Math.PI * 2);
@@ -235,8 +235,15 @@ function drawComputer(x, y) {
         };
         socket.onmessage = (ev) => {
         let msg = null;
-        try { msg = JSON.parse(ev.data); } catch (e) { log("Non-JSON message", ev.data); return; }
+        try { 
+            msg = JSON.parse(ev.data); 
+        } catch (e) 
+        { 
+            log("Non-JSON message", ev.data);
+            return;
+        }
         log(`<= ${msg.type}`);
+        alert(msg.type)
         switch (msg.type) {
         case "space-joined": {
         myPos.x = msg.payload && msg.payload.spawn ? msg.payload.spawn.x : 0;
@@ -253,18 +260,22 @@ function drawComputer(x, y) {
         drawGrid();
         break;
         }
+        
         case "user-joined": {
         const p = msg.payload || {};
         const uid = p.userId || p.id;
         if (uid) {
         others.set(uid, { x: p.x, y: p.y });
         renderUserList();
-        drawGrid();
+        // drawGrid();
         }
         break;
         }
+        
         case "movement": {
         const p = msg.payload || {};
+            alert(p.x);
+            alert(p.y);
         const uid = p.userId || p.id;
         if (uid && others.has(uid)) {
         others.set(uid, { x: p.x, y: p.y });
@@ -297,14 +308,28 @@ function drawComputer(x, y) {
         const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
         if (["input","textarea","select"].includes(tag)) return;
         let handled = false;
-        if (e.key === "ArrowUp") { handled = true; 
-            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null) { const nx = myPos.x;
+        if (e.key === "ArrowUp") 
+            { handled = true; 
+            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null &&myPos.y>0&&myPos.x>0&&myPos.x<30) { 
+                const nx = myPos.x;
                 const ny = myPos.y - 1;
-                socket.send(JSON.stringify({ type: "move", payload: { x: nx, y: ny } })); 
-                myPos.x = nx; myPos.y = ny; drawGrid(); } }
+                socket.send(JSON.stringify({ 
+                    type: "move", 
+                    payload: 
+                    {
+                        x: nx, y: ny 
+                    }
+                })); 
+                myPos.x = nx; 
+                myPos.y = ny; 
+                drawGrid(); 
+            } 
+        }
         else if (e.key === "ArrowDown") 
-        { handled = true; if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null) 
-            { const nx = myPos.x; 
+        { handled = true; 
+            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null && myPos.y<16&&myPos.x>0&&myPos.x<30) 
+            { 
+                const nx = myPos.x; 
                 const ny = myPos.y + 1; 
                 socket.send(JSON.stringify({ type: "move", payload: { x: nx, y: ny } })); 
                 myPos.x = nx; myPos.y = ny; 
@@ -312,15 +337,16 @@ function drawComputer(x, y) {
             } }
         else if (e.key === "ArrowLeft") 
         { handled = true; 
-            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null) 
+            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null && myPos.x>0&&myPos.y>0&&myPos.y<16) 
             { const nx = myPos.x - 1;
                 const ny = myPos.y; socket.send(JSON.stringify({ type: "move", payload: { x: nx, y: ny } })); 
                 myPos.x = nx; myPos.y = ny; drawGrid(); } }
         else if (e.key === "ArrowRight") 
         { handled = true; 
-            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null) 
+            if (joined && socket && socket.readyState === WebSocket.OPEN && myPos.x != null && myPos.x<30 &&myPos.y>0&&myPos.y<16) 
             { const nx = myPos.x + 1; 
-                const ny = myPos.y; 
+                const ny = myPos.y;
+               
                 socket.send(JSON.stringify({ type: "move", payload: { x: nx, y: ny } })); 
                 myPos.x = nx; 
                 myPos.y = ny; 

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Realistic Chair (Canvas)</title>
+  <style>
+    canvas { background:#f3f3f3; display:block; margin:20px auto; border:1px solid #ccc; }
+  </style>
+</head>
+<body>
+<canvas id="c" width="800" height="500"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+/**
+ * Draw a realistic chair with light perspective and shading.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} x  Seat center X (on canvas)
+ * @param {number} y  Seat center Y (on canvas)
+ * @param {object} opts  Options:
+ *   - seatW: seat width (default 140)
+ *   - seatD: seat depth (default 110)
+ *   - seatH: seat height from floor (default 70)
+ *   - backH: backrest height above seat (default 120)
+ *   - legW: leg thickness (default 14)
+ *   - tilt: seat tilt/perspective factor 0..1 (default 0.22)
+ *   - wood1/wood2: wood gradient colors
+ *   - fabric1/fabric2: seat fabric gradient colors
+ *   - rotation: radians to rotate whole chair (default 0)
+ */
+function drawRealisticChair(ctx, x, y, opts = {}) {
+  const {
+    seatW = 140,
+    seatD = 110,
+    seatH = 70,
+    backH = 120,
+    legW = 14,
+    tilt = 0.22,
+    wood1 = '#9c6644',
+    wood2 = '#5a3d2b',
+    fabric1 = '#d6a674',
+    fabric2 = '#b07b4a',
+    rotation = 0
+  } = opts;
+
+  // ---- helpers ----
+  const px = (p) => p[0], py = (p) => p[1];
+
+  // Seat plane (trapezoid) corners relative to seat center (x,y)
+  // Slight perspective: rear edge is shorter/higher
+  const halfW = seatW / 2;
+  const frontDepth = seatD * (1 - tilt * 0.3);
+  const rearDepth  = seatD * (1 - tilt);
+  const rise = seatD * tilt * 0.6; // vertical rise of back edge
+
+  // Points in local coords (before rotation)
+  const pFL = [-halfW, -frontDepth/2]; // Front-Left
+  const pFR = [ halfW, -frontDepth/2]; // Front-Right
+  const pBR = [ halfW * 0.88,  rearDepth/2 - rise]; // Back-Right (narrow + raised)
+  const pBL = [-halfW * 0.88,  rearDepth/2 - rise]; // Back-Left
+
+  // Leg positions projected on floor under seat front/back corners
+  const floorDrop = seatH; // drop to floor
+  const legOffset = legW * 0.5;
+
+  // rotate + translate utility
+  function tr(p) {
+    const cos = Math.cos(rotation), sin = Math.sin(rotation);
+    return [ x + p[0]*cos - p[1]*sin, y + p[0]*sin + p[1]*cos ];
+  }
+
+  // ---- Shadows on floor (simple soft blob under seat) ----
+  (function drawShadow(){
+    const [sx, sy] = tr([0, 0]); // seat center projected
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(sx, sy + floorDrop + 3, seatW * 0.55, seatD * 0.30, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  })();
+
+  // ---- Rear legs (draw first so they appear behind) ----
+  function drawLeg(localX, localY, height, isBack=false) {
+    const top = tr([localX, localY]);
+    const bottom = tr([localX, localY + floorDrop]);
+    const grad = ctx.createLinearGradient(px(top), py(top), px(bottom), py(bottom));
+    grad.addColorStop(0, wood1);
+    grad.addColorStop(1, wood2);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = legW;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    // Slight backward lean for back legs
+    const lean = isBack ? -6 : 0;
+    ctx.moveTo(px(top) + lean, py(top) + legW*0.2);
+    ctx.lineTo(px(bottom), py(bottom));
+    ctx.stroke();
+
+    // tiny floor shadow under foot
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(px(bottom), py(bottom)+2, legW*0.9, legW*0.4, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // rear legs near pBL & pBR
+  drawLeg(pBL[0] + legOffset, pBL[1] + legOffset, floorDrop, true);
+  drawLeg(pBR[0] - legOffset, pBR[1] + legOffset, floorDrop, true);
+
+  // ---- Seat (cushion) ----
+  (function drawSeat(){
+    const FL = tr(pFL), FR = tr(pFR), BR = tr(pBR), BL = tr(pBL);
+
+    // Rim (wood frame) under cushion
+    const rimOffset = 6;
+    const rim = ctx.createLinearGradient(px(FL), py(FL), px(BR), py(BR));
+    rim.addColorStop(0, wood1);
+    rim.addColorStop(1, wood2);
+    ctx.fillStyle = rim;
+    ctx.beginPath();
+    ctx.moveTo(px(FL), py(FL));
+    ctx.lineTo(px(FR), py(FR));
+    ctx.lineTo(px(BR), py(BR) + 6);
+    ctx.lineTo(px(BL), py(BL) + 6);
+    ctx.closePath();
+    ctx.fill();
+
+    // Cushion (slightly inset, soft edges)
+    const inset = 8;
+    const iFL = tr([pFL[0] + inset, pFL[1] + inset]);
+    const iFR = tr([pFR[0] - inset, pFR[1] + inset]);
+    const iBR = tr([pBR[0] - inset, pBR[1] - inset]);
+    const iBL = tr([pBL[0] + inset, pBL[1] - inset]);
+
+    // Fabric gradient across seat
+    const gSeat = ctx.createLinearGradient(px(iFL), py(iFL), px(iBR), py(iBR));
+    gSeat.addColorStop(0, fabric1);
+    gSeat.addColorStop(0.5, fabric2);
+    gSeat.addColorStop(1, fabric1);
+
+    // slight highlight
+    ctx.save();
+    ctx.fillStyle = gSeat;
+    ctx.beginPath();
+    ctx.moveTo(px(iFL), py(iFL));
+    ctx.lineTo(px(iFR), py(iFR));
+    ctx.lineTo(px(iBR), py(iBR));
+    ctx.lineTo(px(iBL), py(iBL));
+    ctx.closePath();
+    ctx.fill();
+
+    const highlight = ctx.createLinearGradient(px(iFL), py(iFL)-10, px(iFR), py(iFR)-10);
+    highlight.addColorStop(0, 'rgba(255,255,255,0.25)');
+    highlight.addColorStop(1, 'rgba(255,255,255,0.0)');
+    ctx.fillStyle = highlight;
+    ctx.beginPath();
+    ctx.moveTo(px(iFL), py(iFL));
+    ctx.lineTo(px(iFR), py(iFR));
+    ctx.lineTo(px(iFR), py(iFR)-4);
+    ctx.lineTo(px(iFL), py(iFL)-4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // Seat edge stroke
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(px(FL), py(FL));
+    ctx.lineTo(px(FR), py(FR));
+    ctx.lineTo(px(BR), py(BR));
+    ctx.lineTo(px(BL), py(BL));
+    ctx.closePath();
+    ctx.stroke();
+  })();
+
+  // ---- Front legs (draw last so they appear in front) ----
+  drawLeg(pFL[0] + legOffset, pFL[1] + legOffset, floorDrop, false);
+  drawLeg(pFR[0] - legOffset, pFR[1] + legOffset, floorDrop, false);
+
+  // ---- Backrest (rounded wood frame + upholstered panel) ----
+  (function drawBackrest(){
+    // posts align with rear legs, extend up from seat plane
+    const postRise = -backH - rise * 0.6; // up relative to seat plane
+    const leftPostTop  = tr([pBL[0] + legOffset, pBL[1] + postRise]);
+    const rightPostTop = tr([pBR[0] - legOffset, pBR[1] + postRise]);
+    const leftPostBase = tr([pBL[0] + legOffset, pBL[1]]);
+    const rightPostBase= tr([pBR[0] - legOffset, pBR[1]]);
+
+    // posts
+    const postGrad = ctx.createLinearGradient(px(leftPostTop), py(leftPostTop), px(leftPostBase), py(leftPostBase));
+    postGrad.addColorStop(0, wood1);
+    postGrad.addColorStop(1, wood2);
+    ctx.strokeStyle = postGrad;
+    ctx.lineCap = 'round';
+    ctx.lineWidth = legW;
+    ctx.beginPath();
+    ctx.moveTo(px(leftPostTop), py(leftPostTop));
+    ctx.lineTo(px(leftPostBase), py(leftPostBase));
+    ctx.moveTo(px(rightPostTop), py(rightPostTop));
+    ctx.lineTo(px(rightPostBase), py(rightPostBase));
+    ctx.stroke();
+
+    // upholstered panel between posts
+    const padInset = legW * 0.8;
+    const panelTL = tr([pBL[0] + padInset, pBL[1] + postRise + 8]);
+    const panelTR = tr([pBR[0] - padInset, pBR[1] + postRise + 8]);
+    const panelBL = tr([pBL[0] + padInset, pBL[1] + 8]);
+    const panelBR = tr([pBR[0] - padInset, pBR[1] + 8]);
+
+    // gradient fabric on backrest
+    const gBack = ctx.createLinearGradient(px(panelTL), py(panelTL), px(panelBR), py(panelBR));
+    gBack.addColorStop(0, fabric2);
+    gBack.addColorStop(1, fabric1);
+
+    // draw panel as quad
+    ctx.fillStyle = gBack;
+    ctx.beginPath();
+    ctx.moveTo(px(panelTL), py(panelTL));
+    ctx.lineTo(px(panelTR), py(panelTR));
+    ctx.lineTo(px(panelBR), py(panelBR));
+    ctx.lineTo(px(panelBL), py(panelBL));
+    ctx.closePath();
+    ctx.fill();
+
+    // top highlight
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(px(panelTL), py(panelTL));
+    ctx.lineTo(px(panelTR), py(panelTR));
+    ctx.stroke();
+  })();
+}
+
+// ---- Demo usage ----
+function drawDemo() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Ground hint
+  const g = ctx.createLinearGradient(0, 280, 0, 500);
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(1, '#eaeaea');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 260, canvas.width, canvas.height-260);
+
+  drawRealisticChair(ctx, 260, 300, { rotation: -0.15 });
+  drawRealisticChair(ctx, 540, 310, { seatW: 160, seatD: 120, backH: 140, rotation: 0.2,
+    fabric1:'#cfcfd6', fabric2:'#a7a7b2', wood1:'#8b6b4a', wood2:'#4c3526' });
+}
+drawDemo();
+</script>
+</body>
+</html>
