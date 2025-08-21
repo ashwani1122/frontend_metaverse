@@ -114,7 +114,7 @@ function drawTable(x, y, withComputer = false) {
   if (withComputer) drawComputer(x + 45, y);
 
   // ---- Collision approx: table top + legs as a single block
-  addObstacle(x, y, 140, 70);
+//   addObstacle(x, y, 140, 70);
 }
 
 function drawRoom(x, y) {
