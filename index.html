@@ -230,7 +230,10 @@
     function updateAuthButtons() {
         const registerBtn = document.getElementById("signup");
         const logoutBtn = document.getElementById("logout");
-
+        if(!isLoggedIn()){
+            registerBtn.style.display = "inline-block";
+            logoutBtn.style.display = "none";
+        }
         if (isLoggedIn()) {
         registerBtn.style.display = "none";
         logoutBtn.style.display = "inline-block";
