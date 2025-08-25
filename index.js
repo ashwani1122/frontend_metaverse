@@ -317,7 +317,7 @@ drawGrid();
 $("connectBtn")?.addEventListener("click", () => {
     const url = $("wsUrl")?.value.trim();
     const spaceId = $("spaceId")?.value.trim();
-    const token = $("token")?.value.trim();
+    const token = localStorage.getItem("token");
     if (!url || !spaceId || !token) {
         alert("Please fill WS URL, spaceId, and token");
         return;

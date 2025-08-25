@@ -61,15 +61,17 @@
                 <h3 style="color:white; font-size:30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;padding: 20px;">Metaverse</h3>
             </div>
             <div style="padding-inline: 35px;padding-block: 10px; margin-top: 12px; cursor: pointer; font-size: 20px;border-radius: 10px;" class="right">
-                <button class="button"  onclick="spaceJoin()" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(174, 175, 184); color: oklch(100% 0.00011 271.152); font-weight: 700;">
-                    <a style="text-decoration: none;" href="spaceCreate.html">
+                <a style="text-decoration: none;" href="spaceCreate.html"><button class="button"  onclick="spaceJoin()" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(174, 175, 184); color: oklch(41.102% 0.23935 267.284); font-weight: 700;">
                     create space
-                    </a>
                 </button>
-                <button class="button" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(175, 176, 188); color: antiquewhite; font-weight: 700;">
+                </a>
+                <button id="signup" class="button" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(175, 176, 188); color: rgb(26, 13, 220); font-weight: 700;">
                     <a style="text-decoration:  none;" href="signup.html">
                     Sign Up
                     </a>
+                </button>
+                <button id="logout" style="padding: 15px; margin-top: 20px; border-radius: 5px; border: none; font-size: large; outline: none; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); background-color: rgb(175, 176, 188); color: rgb(21, 39, 202); font-weight: 700;">
+                    logout
                 </button>
             </div>
         </div>
@@ -221,33 +223,71 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const lazyElements = document.querySelectorAll("img, video");
+    function isLoggedIn() {
+        return localStorage.getItem("isLoggedIn") === "true";
+    }
 
-  lazyElements.forEach(el => el.classList.add("lazy-animate"));
+    function updateAuthButtons() {
+        const registerBtn = document.getElementById("signup");
+        const logoutBtn = document.getElementById("logout");
 
-  const observer = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-
-        if (entry.target.tagName === "VIDEO") {
-          const source = entry.target.querySelector("source");
-          if (source && source.dataset.src) {
-            source.src = source.dataset.src;
-            entry.target.load();
-          }
-        } else if (entry.target.tagName === "IMG" && entry.target.dataset.src) {
-          entry.target.src = entry.target.dataset.src;
+        if (isLoggedIn()) {
+        registerBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        } else {
+        registerBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
         }
+    }
 
-        obs.unobserve(entry.target);
-      }
+    document.addEventListener("DOMContentLoaded", () => {
+        updateAuthButtons();
+
+        // Fix: this should be 'signup' not 'registerBtn'
+        document.getElementById("signup").addEventListener("click", (e) => {
+        // prevent default navigation
+        e.preventDefault();
+
+        // Set login state
+        localStorage.setItem("isLoggedIn", "true");
+
+        // Redirect manually after setting state
+        window.location.href = "signup.html";
+        });
+
+        // logout button
+        document.getElementById("logout").addEventListener("click", () => {
+            localStorage.setItem("isLoggedIn", "false");
+        localStorage.clear("token");
+        updateAuthButtons();
+        });
+
+        // your lazy loading logic...
+        const lazyElements = document.querySelectorAll("img, video");
+        lazyElements.forEach(el => el.classList.add("lazy-animate"));
+
+        const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+
+            if (entry.target.tagName === "VIDEO") {
+                const source = entry.target.querySelector("source");
+                if (source && source.dataset.src) {
+                source.src = source.dataset.src;
+                entry.target.load();
+                }
+            } else if (entry.target.tagName === "IMG" && entry.target.dataset.src) {
+                entry.target.src = entry.target.dataset.src;
+            }
+
+            obs.unobserve(entry.target);
+            }
+        });
+        }, { threshold: 0.2 });
+
+        lazyElements.forEach(el => observer.observe(el));
     });
-  }, { threshold: 0.2 });
-
-  lazyElements.forEach(el => observer.observe(el));
-});
 </script>
 </body>
 </html>

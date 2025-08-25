@@ -26,4 +26,5 @@ async function spaceCreate() {
     data = await res.json();
     console.log(data);
     alert(data.spaceId);
+    window.location.href="space.html"
 }
