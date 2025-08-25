@@ -347,7 +347,7 @@ $("connectBtn")?.addEventListener("click", () => {
         return;
         }
 
-        log(`<= ${msg.type}`, msg);
+        // log(`<= ${msg.type}`, msg);
 
         switch (msg.type) {
         case "space-joined": {
