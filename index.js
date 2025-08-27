@@ -315,7 +315,7 @@ drawGrid();
 
 // ===== WebSocket connect =====
 $("connectBtn")?.addEventListener("click", () => {
-    const url = $("wsUrl")?.value.trim();
+    const url = "ws://localhost:3001";
     const spaceId = $("spaceId")?.value.trim();
     const token = localStorage.getItem("token");
     if (!url || !spaceId || !token) {
