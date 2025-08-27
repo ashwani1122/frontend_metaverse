@@ -323,11 +323,13 @@ $("connectBtn")?.addEventListener("click", () => {
         return;
     }
     if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-        try { socket.close(); } catch {}
+        try { socket.open(); } catch(e) {
+            log(e);
+        }
     }
 
     socket = new WebSocket(url);
-
+    if(!socket) return;
     socket.onopen = () => {
         log("WS connected. Sending join...");
         safeSend({ type: "join", payload: { spaceId, token } });
